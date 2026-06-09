@@ -1,133 +1,101 @@
 import type { Metadata } from 'next';
 import { ChevronDown } from 'lucide-react';
-import PricingCard from '@/components/pricing/PricingCard';
 import QuoteEstimator from '@/components/pricing/QuoteEstimator';
-import { getPricing, getFaqs } from '@/sanity/queries';
+import { getFaqs } from '@/sanity/queries';
 import { PortableText } from '@portabletext/react';
-import type { PricingItem } from '@/types';
+import Link from 'next/link';
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Pricing',
-  description: 'Transparent pricing for custom hand-painted signs. Wedding signs starting at $40. Use the estimator to get a quick ballpark.',
+  description: 'Transparent pricing for custom hand-painted signs. All projects start at $40. Use the estimator to build your quote.',
 };
 
-const DEFAULT_PRICING: PricingItem[] = [
-  {
-    _id: '1', _type: 'pricing', title: 'Wedding Signs', startingPrice: 40, isCustomQuote: false, sortOrder: 1,
-    description: 'Welcome signs, seating charts, bar menus, vow signs, and more.',
-    features: ['Fully custom design', 'Choice of size and material', 'Multiple lettering styles', 'Coordination with your aesthetic'],
-  },
-  {
-    _id: '2', _type: 'pricing', title: 'Graduation Signs', startingPrice: 40, isCustomQuote: false, sortOrder: 2,
-    description: 'Personalized signs featuring names, schools, and milestone details.',
-    features: ['Name and year lettering', 'School colors or themes', 'Photo-worthy design', 'Keepsake quality'],
-  },
-  {
-    _id: '3', _type: 'pricing', title: 'Missionary Farewell Signs', startingPrice: 40, isCustomQuote: false, sortOrder: 3,
-    description: 'Honor the calling with a beautiful handmade tribute.',
-    features: ['Mission name and dates', 'Scripture or quotes', 'Custom colors', 'Framing-ready finish'],
-  },
-  {
-    _id: '4', _type: 'pricing', title: 'Mirror & Glass Signs', startingPrice: 60, isCustomQuote: false, sortOrder: 4,
-    description: 'Hand-lettered mirrors for weddings, nurseries, and home décor.',
-    features: ['Premium mirror quality', 'Gold or white paint options', 'Keepsake and décor ready', 'Various sizes available'],
-  },
-  {
-    _id: '5', _type: 'pricing', title: 'Custom Artwork', isCustomQuote: true, sortOrder: 5,
-    description: 'One-of-a-kind pieces tailored entirely to your vision — portraits, illustrations, home décor, and beyond.',
-    features: ['Fully custom concept', 'Collaborative design process', 'Any size, material, or style', 'Quoted individually'],
-  },
+const STARTING_PRICES = [
+  { label: 'Wedding Signs', price: '$40' },
+  { label: 'Graduation Signs', price: '$40' },
+  { label: 'Missionary Farewell', price: '$40' },
+  { label: 'Bridal & Baby Showers', price: '$40' },
+  { label: 'Birthday & Event Signs', price: '$40' },
+  { label: 'Mirror Signs', price: '$60' },
+  { label: 'Custom Artwork', price: 'Quote' },
 ];
 
 export default async function PricingPage() {
-  const [pricingData, faqData] = await Promise.allSettled([
-    getPricing(),
-    getFaqs(),
-  ]);
-
-  const pricing = pricingData.status === 'fulfilled' && pricingData.value.length > 0
-    ? pricingData.value
-    : DEFAULT_PRICING;
-
-  const faqs = faqData.status === 'fulfilled' ? faqData.value : [];
+  const faqData = await getFaqs().catch(() => []);
 
   return (
     <div className="min-h-screen bg-warm-white pt-32 pb-24">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
+
         {/* Header */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <p className="label-line text-xs tracking-[0.2em] uppercase text-gold mb-4">Transparent Pricing</p>
-          <h1 className="font-display font-light text-5xl md:text-6xl text-ink mb-4">
-            Pricing
-          </h1>
+          <h1 className="font-display font-light text-5xl md:text-6xl text-ink mb-4">Pricing</h1>
           <p className="text-base text-ink-light max-w-xl mx-auto leading-relaxed">
-            Every piece is priced based on size, material, and complexity. The prices below are starting points — use the estimator to get a ballpark, then request a quote for the exact number.
+            Every project starts at $40. Use the builder below to get an instant estimate based on size, complexity, and material.
           </p>
         </div>
 
-        {/* Pricing cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
-          {pricing.map((item) => (
-            <PricingCard key={item._id} item={item} />
-          ))}
+        {/* Starting prices strip */}
+        <div className="bg-cream rounded-2xl px-6 py-6 mb-16">
+          <p className="text-xs tracking-[0.2em] uppercase text-muted text-center mb-5">Starting Prices</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
+            {STARTING_PRICES.map(({ label, price }) => (
+              <div key={label} className="text-center">
+                <p className="font-display text-2xl text-gold mb-1">{price}</p>
+                <p className="text-xs text-muted leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Estimator */}
-        <div className="mb-24">
-          <div className="text-center mb-10">
+        <div className="mb-16">
+          <div className="text-center mb-8">
             <p className="label-line text-xs tracking-[0.2em] uppercase text-gold mb-3">Price Calculator</p>
             <h2 className="font-display font-light text-4xl text-ink">Estimate Your Order</h2>
           </div>
-          <div className="max-w-2xl mx-auto">
-            <QuoteEstimator />
-          </div>
+          <QuoteEstimator />
         </div>
 
         {/* What to expect */}
-        <div className="bg-cream rounded-3xl p-10 md:p-12 mb-24">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="font-display text-3xl text-ink mb-6 text-center">What to Expect</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  title: 'Turnaround Time',
-                  body: 'Standard orders take 1–2 weeks. Rush orders (under 1 week) are available for an additional fee, subject to current availability.',
-                },
-                {
-                  title: 'What\'s Included',
-                  body: 'Your quote includes the sign, packaging, and up to two design revision rounds. Additional revisions, rush fees, and shipping are quoted separately.',
-                },
-                {
-                  title: 'Payment',
-                  body: 'A 50% deposit is required to begin. The remaining balance is due before delivery. I accept Venmo, PayPal, and Zelle.',
-                },
-              ].map(({ title, body }) => (
-                <div key={title}>
-                  <h3 className="font-display text-xl text-ink mb-2">{title}</h3>
-                  <p className="text-sm leading-relaxed text-ink-light">{body}</p>
-                </div>
-              ))}
-            </div>
+        <div className="bg-cream rounded-3xl p-10 md:p-12 mb-16">
+          <h2 className="font-display font-light text-3xl text-ink mb-8 text-center">What to Expect</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'Turnaround Time',
+                body: 'Standard orders take 1–2 weeks. Rush orders available for an additional fee — within 7 days (+$15) or within 3 days (+$25), subject to availability.',
+              },
+              {
+                title: "What's Included",
+                body: 'Your quote includes the sign and up to two design revision rounds. Additional revisions, rush fees, and shipping are quoted separately.',
+              },
+              {
+                title: 'Payment',
+                body: 'A 50% deposit is required to begin. The balance is due before delivery. Venmo, PayPal, and Zelle accepted.',
+              },
+            ].map(({ title, body }) => (
+              <div key={title}>
+                <h3 className="font-display text-xl text-ink mb-2">{title}</h3>
+                <p className="text-sm leading-relaxed text-ink-light">{body}</p>
+              </div>
+            ))}
           </div>
         </div>
 
         {/* FAQs */}
-        {faqs.length > 0 && (
-          <div className="max-w-2xl mx-auto">
-            <h2 className="font-display text-4xl text-ink text-center mb-10">
-              Frequently Asked Questions
-            </h2>
+        {faqData.length > 0 && (
+          <div className="max-w-2xl mx-auto mb-16">
+            <h2 className="font-display font-light text-4xl text-ink text-center mb-10">Frequently Asked Questions</h2>
             <div className="flex flex-col divide-y divide-border">
-              {faqs.map((faq) => (
+              {faqData.map((faq) => (
                 <details key={faq._id} className="group py-5 cursor-pointer">
                   <summary className="flex items-center justify-between gap-4 list-none">
                     <span className="font-display text-xl text-ink">{faq.question}</span>
-                    <ChevronDown
-                      size={18}
-                      className="text-muted shrink-0 transition-transform group-open:rotate-180"
-                    />
+                    <ChevronDown size={18} className="text-muted shrink-0 transition-transform group-open:rotate-180" />
                   </summary>
                   <div className="mt-3 text-sm leading-relaxed text-ink-light prose prose-sm max-w-none">
                     <PortableText value={faq.answer} />
@@ -137,6 +105,15 @@ export default async function PricingPage() {
             </div>
           </div>
         )}
+
+        {/* CTA */}
+        <div className="text-center">
+          <p className="font-display text-2xl text-ink mb-4">Ready to get started?</p>
+          <Link href="/quote" className="inline-flex items-center gap-2 px-8 py-4 bg-ink text-white text-sm tracking-wide rounded-full hover:bg-ink-light transition-colors">
+            Request a Custom Quote →
+          </Link>
+        </div>
+
       </div>
     </div>
   );
