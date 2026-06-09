@@ -150,22 +150,22 @@ export default function PortfolioGallery({ projects, initialCategory = 'all' }: 
 
       {/* Lightbox */}
       {lightboxProject && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={closeLightbox}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop — clicking anywhere here closes the lightbox */}
+          <div
+            className="absolute inset-0 bg-black/90 cursor-pointer"
+            onClick={closeLightbox}
+          />
+
           <button
-            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white"
+            className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white"
             onClick={closeLightbox}
             aria-label="Close"
           >
             <X size={24} />
           </button>
 
-          <div
-            className="relative max-w-4xl max-h-[90vh] w-full"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="relative z-10 max-w-4xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
             {lightboxProject.images?.[lightboxImageIndex] ? (
               <Image
                 src={urlFor(lightboxProject.images[lightboxImageIndex]).width(1200).url()}
