@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Upload, X, CheckCircle, AlertCircle, ArrowRight as ArrowRightIcon } from 'lucide-react';
 import Link from 'next/link';
 import { BASE_PRICE, SIGN_SIZES, COMPLEXITY_OPTIONS, MATERIAL_OPTIONS, RUSH_OPTIONS } from '@/lib/utils';
+import type { PricingSettings } from '@/types';
 
 interface Prefill { size?: string; complexity?: string; material?: string; rush?: string; }
-interface QuoteWizardProps { prefill?: Prefill; }
+interface QuoteWizardProps { prefill?: Prefill; pricingSettings?: PricingSettings | null; }
 interface PhotoFile { name: string; type: string; data: string; }
 
 const EVENT_OPTIONS = [
@@ -51,7 +52,13 @@ function AnimatedPrice({ value }: { value: string }) {
   );
 }
 
-export default function QuoteWizard({ prefill }: QuoteWizardProps) {
+export default function QuoteWizard({ prefill, pricingSettings }: QuoteWizardProps) {
+  const sizeOpts = pricingSettings?.sizes?.length ? pricingSettings.sizes : SIGN_SIZES;
+  const complexityOpts = pricingSettings?.complexityOptions?.length ? pricingSettings.complexityOptions : COMPLEXITY_OPTIONS;
+  const materialOpts = pricingSettings?.materialOptions?.length ? pricingSettings.materialOptions : MATERIAL_OPTIONS;
+  const rushOpts = pricingSettings?.rushOptions?.length ? pricingSettings.rushOptions : RUSH_OPTIONS;
+  const basePrice = pricingSettings?.basePrice ?? BASE_PRICE;
+
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -64,7 +71,7 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
   const [sizeLabel, setSizeLabel] = useState(prefill?.size ?? '');
   const [complexityLabel, setComplexityLabel] = useState(prefill?.complexity ?? '');
   const [materialLabel, setMaterialLabel] = useState(prefill?.material ?? '');
-  const [rushLabel, setRushLabel] = useState(prefill?.rush ?? RUSH_OPTIONS[0].label);
+  const [rushLabel, setRushLabel] = useState(prefill?.rush ?? rushOpts[0]?.label ?? RUSH_OPTIONS[0].label);
   const [description, setDescription] = useState('');
   const [inspirationLinks, setInspirationLinks] = useState('');
   const [photos, setPhotos] = useState<File[]>([]);
@@ -72,15 +79,15 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
 
-  const selectedSize = SIGN_SIZES.find((s) => s.label === sizeLabel);
-  const selectedComplexity = COMPLEXITY_OPTIONS.find((c) => c.label === complexityLabel);
-  const selectedMaterial = MATERIAL_OPTIONS.find((m) => m.label === materialLabel);
-  const selectedRush = RUSH_OPTIONS.find((r) => r.label === rushLabel) ?? RUSH_OPTIONS[0];
+  const selectedSize = sizeOpts.find((s) => s.label === sizeLabel);
+  const selectedComplexity = complexityOpts.find((c) => c.label === complexityLabel);
+  const selectedMaterial = materialOpts.find((m) => m.label === materialLabel);
+  const selectedRush = rushOpts.find((r) => r.label === rushLabel) ?? rushOpts[0];
   const isSpecialMaterial = selectedMaterial?.adder === null;
   const total = selectedSize && selectedComplexity && selectedMaterial && !isSpecialMaterial
-    ? BASE_PRICE + selectedSize.adder + selectedComplexity.adder + (selectedMaterial.adder ?? 0) + selectedRush.adder
+    ? basePrice + (selectedSize.adder ?? 0) + (selectedComplexity.adder ?? 0) + (selectedMaterial.adder ?? 0) + (selectedRush?.adder ?? 0)
     : null;
-  const priceDisplay = isSpecialMaterial ? 'Custom' : total !== null ? `$${total}` : `From $${BASE_PRICE}`;
+  const priceDisplay = isSpecialMaterial ? 'Custom' : total !== null ? `$${total}` : `From $${basePrice}`;
 
   const scrollTop = () => topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -273,25 +280,25 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
 
                 {[
                   {
-                    label: 'Size', options: SIGN_SIZES.map((s) => ({
+                    label: 'Size', options: sizeOpts.map((s) => ({
                       label: s.label, sub: undefined, adder: s.adder, selected: sizeLabel === s.label,
                       onClick: () => setSizeLabel(s.label),
                     })),
                   },
                   {
-                    label: 'Design Complexity', options: COMPLEXITY_OPTIONS.map((c) => ({
+                    label: 'Design Complexity', options: complexityOpts.map((c) => ({
                       label: c.label, sub: c.description, adder: c.adder, selected: complexityLabel === c.label,
                       onClick: () => setComplexityLabel(c.label),
                     })),
                   },
                   {
-                    label: 'Material', options: MATERIAL_OPTIONS.map((m) => ({
+                    label: 'Material', options: materialOpts.map((m) => ({
                       label: m.label, sub: undefined, adder: m.adder, selected: materialLabel === m.label,
                       onClick: () => setMaterialLabel(m.label),
                     })),
                   },
                   {
-                    label: 'Rush Order?', options: RUSH_OPTIONS.map((r) => ({
+                    label: 'Rush Order?', options: rushOpts.map((r) => ({
                       label: r.label, sub: undefined, adder: r.adder, selected: rushLabel === r.label,
                       onClick: () => setRushLabel(r.label),
                     })),
@@ -441,7 +448,7 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
                       ['Size', sizeLabel],
                       ['Complexity', complexityLabel],
                       ['Material', materialLabel],
-                      [rushLabel !== RUSH_OPTIONS[0].label ? 'Rush' : '', rushLabel !== RUSH_OPTIONS[0].label ? rushLabel : ''],
+                      [rushLabel !== rushOpts[0]?.label ? 'Rush' : '', rushLabel !== rushOpts[0]?.label ? rushLabel : ''],
                     ].filter(([, v]) => v).map(([label, value]) => (
                       <div key={label} className="flex justify-between">
                         <span className="text-muted">{label}</span>

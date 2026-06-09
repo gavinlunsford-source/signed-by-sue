@@ -3,24 +3,45 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BASE_PRICE, SIGN_SIZES, COMPLEXITY_OPTIONS, MATERIAL_OPTIONS, RUSH_OPTIONS } from '@/lib/utils';
+import type { PricingSettings } from '@/types';
 
-export default function QuoteEstimator() {
+interface QuoteEstimatorProps {
+  pricingSettings?: PricingSettings | null;
+}
+
+export default function QuoteEstimator({ pricingSettings }: QuoteEstimatorProps) {
   const router = useRouter();
+
+  const sizes = pricingSettings?.sizes?.length ? pricingSettings.sizes : SIGN_SIZES;
+  const complexityOptions = pricingSettings?.complexityOptions?.length ? pricingSettings.complexityOptions : COMPLEXITY_OPTIONS;
+  const materialOptions = pricingSettings?.materialOptions?.length ? pricingSettings.materialOptions : MATERIAL_OPTIONS;
+  const rushOptions = pricingSettings?.rushOptions?.length ? pricingSettings.rushOptions : RUSH_OPTIONS;
+  const basePrice = pricingSettings?.basePrice ?? BASE_PRICE;
+  const exampleQuotes = pricingSettings?.exampleQuotes?.length
+    ? pricingSettings.exampleQuotes
+    : [
+        { label: 'Graduation sign', total: 50, note: 'Small + decorative elements' },
+        { label: 'Large wedding sign', total: 70, note: 'Large + decorative elements' },
+        { label: 'Mirror welcome sign', total: 70, note: 'Small + mirror + decorative' },
+        { label: 'Detailed wedding sign', total: 80, note: 'Large + detailed artwork' },
+        { label: 'Large mirror w/ artwork', total: 100, note: 'Large + mirror + detailed artwork' },
+      ];
+
   const [sizeLabel, setSizeLabel] = useState<string | null>(null);
   const [complexityLabel, setComplexityLabel] = useState<string | null>(null);
   const [materialLabel, setMaterialLabel] = useState<string | null>(null);
-  const [rushLabel, setRushLabel] = useState<string>(RUSH_OPTIONS[0].label);
+  const [rushLabel, setRushLabel] = useState<string>(rushOptions[0]?.label ?? RUSH_OPTIONS[0].label);
 
-  const selectedSize = SIGN_SIZES.find((s) => s.label === sizeLabel);
-  const selectedComplexity = COMPLEXITY_OPTIONS.find((c) => c.label === complexityLabel);
-  const selectedMaterial = MATERIAL_OPTIONS.find((m) => m.label === materialLabel);
-  const selectedRush = RUSH_OPTIONS.find((r) => r.label === rushLabel) ?? RUSH_OPTIONS[0];
+  const selectedSize = sizes.find((s) => s.label === sizeLabel);
+  const selectedComplexity = complexityOptions.find((c) => c.label === complexityLabel);
+  const selectedMaterial = materialOptions.find((m) => m.label === materialLabel);
+  const selectedRush = rushOptions.find((r) => r.label === rushLabel) ?? rushOptions[0];
 
   const isSpecialMaterial = selectedMaterial?.adder === null;
 
   const total =
     selectedSize && selectedComplexity && selectedMaterial && !isSpecialMaterial
-      ? BASE_PRICE + selectedSize.adder + selectedComplexity.adder + (selectedMaterial.adder ?? 0) + selectedRush.adder
+      ? basePrice + (selectedSize.adder ?? 0) + (selectedComplexity.adder ?? 0) + (selectedMaterial.adder ?? 0) + (selectedRush?.adder ?? 0)
       : null;
 
   const handleRequestQuote = () => {
@@ -28,7 +49,7 @@ export default function QuoteEstimator() {
     if (sizeLabel) params.set('size', sizeLabel);
     if (complexityLabel) params.set('complexity', complexityLabel);
     if (materialLabel) params.set('material', materialLabel);
-    if (rushLabel !== RUSH_OPTIONS[0].label) params.set('rush', rushLabel);
+    if (rushLabel !== rushOptions[0]?.label) params.set('rush', rushLabel);
     router.push(`/quote?${params.toString()}`);
   };
 
@@ -37,17 +58,17 @@ export default function QuoteEstimator() {
   const btnInactive = 'border-border bg-white text-ink-light hover:border-gold/40';
 
   const lineItems = [
-    { label: 'Base project', amount: BASE_PRICE as number | null },
-    { label: 'Size', amount: selectedSize ? selectedSize.adder : null },
-    { label: 'Design complexity', amount: selectedComplexity ? selectedComplexity.adder : null },
-    { label: 'Material', amount: isSpecialMaterial ? null : selectedMaterial ? selectedMaterial.adder : null },
-    { label: 'Rush fee', amount: selectedRush.adder > 0 ? selectedRush.adder : null },
+    { label: 'Base project', amount: basePrice as number | null },
+    { label: 'Size', amount: selectedSize ? (selectedSize.adder ?? 0) : null },
+    { label: 'Design complexity', amount: selectedComplexity ? (selectedComplexity.adder ?? 0) : null },
+    { label: 'Material', amount: isSpecialMaterial ? null : selectedMaterial ? (selectedMaterial.adder ?? 0) : null },
+    { label: 'Rush fee', amount: (selectedRush?.adder ?? 0) > 0 ? (selectedRush?.adder ?? 0) : null },
   ];
 
   return (
     <div className="bg-white border border-border rounded-3xl p-8 md:p-10 shadow-sm">
       <h3 className="font-display text-3xl text-ink mb-1">Build Your Quote</h3>
-      <p className="text-sm text-muted mb-8">Every project starts at ${BASE_PRICE}. Select your options to see your total.</p>
+      <p className="text-sm text-muted mb-8">Every project starts at ${basePrice}. Select your options to see your total.</p>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Left — options */}
@@ -57,12 +78,12 @@ export default function QuoteEstimator() {
           <div>
             <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">1. Size</p>
             <div className="flex flex-col gap-2">
-              {SIGN_SIZES.map((s) => (
+              {sizes.map((s) => (
                 <button key={s.label} onClick={() => setSizeLabel(s.label)}
                   className={`${btnBase} ${sizeLabel === s.label ? btnActive : btnInactive}`}>
                   <div className="flex justify-between items-center">
                     <span>{s.label}</span>
-                    <span className={sizeLabel === s.label ? 'text-gold' : 'text-muted'}>{s.adder === 0 ? '+$0' : `+$${s.adder}`}</span>
+                    <span className={sizeLabel === s.label ? 'text-gold' : 'text-muted'}>{(s.adder ?? 0) === 0 ? '+$0' : `+$${s.adder}`}</span>
                   </div>
                 </button>
               ))}
@@ -73,15 +94,15 @@ export default function QuoteEstimator() {
           <div>
             <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">2. Design Complexity</p>
             <div className="flex flex-col gap-2">
-              {COMPLEXITY_OPTIONS.map((c) => (
+              {complexityOptions.map((c) => (
                 <button key={c.label} onClick={() => setComplexityLabel(c.label)}
                   className={`${btnBase} ${complexityLabel === c.label ? btnActive : btnInactive}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <span>{c.label}</span>
-                      <span className="text-xs text-muted ml-2">— {c.description}</span>
+                      {c.description && <span className="text-xs text-muted ml-2">— {c.description}</span>}
                     </div>
-                    <span className={complexityLabel === c.label ? 'text-gold' : 'text-muted'}>{c.adder === 0 ? '+$0' : `+$${c.adder}`}</span>
+                    <span className={complexityLabel === c.label ? 'text-gold' : 'text-muted'}>{(c.adder ?? 0) === 0 ? '+$0' : `+$${c.adder}`}</span>
                   </div>
                 </button>
               ))}
@@ -92,7 +113,7 @@ export default function QuoteEstimator() {
           <div>
             <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">3. Material</p>
             <div className="flex flex-col gap-2">
-              {MATERIAL_OPTIONS.map((m) => (
+              {materialOptions.map((m) => (
                 <button key={m.label} onClick={() => setMaterialLabel(m.label)}
                   className={`${btnBase} ${materialLabel === m.label ? btnActive : btnInactive}`}>
                   <div className="flex justify-between items-center">
@@ -110,12 +131,12 @@ export default function QuoteEstimator() {
           <div>
             <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">4. Rush Fee</p>
             <div className="flex flex-col gap-2">
-              {RUSH_OPTIONS.map((r) => (
+              {rushOptions.map((r) => (
                 <button key={r.label} onClick={() => setRushLabel(r.label)}
                   className={`${btnBase} ${rushLabel === r.label ? btnActive : btnInactive}`}>
                   <div className="flex justify-between items-center">
                     <span>{r.label}</span>
-                    <span className={rushLabel === r.label ? 'text-gold' : 'text-muted'}>{r.adder === 0 ? '' : `+$${r.adder}`}</span>
+                    <span className={rushLabel === r.label ? 'text-gold' : 'text-muted'}>{(r.adder ?? 0) === 0 ? '' : `+$${r.adder}`}</span>
                   </div>
                 </button>
               ))}
@@ -164,19 +185,13 @@ export default function QuoteEstimator() {
           <div className="mt-6">
             <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">Example Quotes</p>
             <div className="flex flex-col gap-2">
-              {[
-                { label: 'Graduation sign', total: 50, note: 'Small + decorative elements' },
-                { label: 'Large wedding sign', total: 70, note: 'Large + decorative elements' },
-                { label: 'Mirror welcome sign', total: 70, note: 'Small + mirror + decorative' },
-                { label: 'Detailed wedding sign', total: 80, note: 'Large + detailed artwork' },
-                { label: 'Large mirror w/ artwork', total: 100, note: 'Large + mirror + detailed artwork' },
-              ].map(({ label, total, note }) => (
+              {exampleQuotes.map(({ label, total: exTotal, note }) => (
                 <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-border last:border-0">
                   <div>
                     <p className="text-ink">{label}</p>
-                    <p className="text-xs text-muted">{note}</p>
+                    {note && <p className="text-xs text-muted">{note}</p>}
                   </div>
-                  <span className="font-display text-xl text-gold">${total}</span>
+                  <span className="font-display text-xl text-gold">${exTotal}</span>
                 </div>
               ))}
             </div>

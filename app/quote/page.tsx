@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import QuoteWizard from '@/components/quote/QuoteWizard';
+import { getPricingSettings } from '@/sanity/queries';
 
 export const metadata: Metadata = {
   title: 'Request a Quote',
@@ -11,7 +12,10 @@ interface QuotePageProps {
 }
 
 export default async function QuotePage({ searchParams }: QuotePageProps) {
-  const params = await searchParams;
+  const [params, pricingSettings] = await Promise.all([
+    searchParams,
+    getPricingSettings().catch(() => null),
+  ]);
 
   return (
     <div className="min-h-screen bg-warm-white pt-24 pb-4">
@@ -20,7 +24,7 @@ export default async function QuotePage({ searchParams }: QuotePageProps) {
           <p className="label-line text-xs tracking-[0.2em] uppercase text-gold mb-2">Custom Sign Request</p>
           <h1 className="font-display font-light text-4xl text-ink">Request a Quote</h1>
         </div>
-        <QuoteWizard prefill={params} />
+        <QuoteWizard prefill={params} pricingSettings={pricingSettings} />
       </div>
     </div>
   );

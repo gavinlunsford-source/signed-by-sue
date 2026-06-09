@@ -2,6 +2,7 @@ import { client, isSanityConfigured } from './client';
 import type {
   PortfolioProject,
   PricingItem,
+  PricingSettings,
   Testimonial,
   Faq,
   HomePage,
@@ -88,4 +89,38 @@ export async function getSiteSettings(): Promise<SiteSettings | null> {
   return sanityFetch<SiteSettings>(
     `*[_type == "siteSettings"][0]{ _id, businessName, tagline, email, phone, instagram, facebook, logo }`
   );
+}
+
+export async function getPricingSettings(): Promise<PricingSettings | null> {
+  const raw = await sanityFetch<{
+    _id: string;
+    basePrice?: number;
+    sizes?: Array<{ _key: string; label: string; adder: number }>;
+    complexityOptions?: Array<{ _key: string; label: string; description?: string; adder: number }>;
+    materialOptions?: Array<{ _key: string; label: string; adder?: number; requiresCustomQuote?: boolean }>;
+    rushOptions?: Array<{ _key: string; label: string; adder: number }>;
+    startingPrices?: Array<{ _key: string; label: string; price: string }>;
+    exampleQuotes?: Array<{ _key: string; label: string; note?: string; total: number }>;
+  }>(`*[_type == "pricingSettings"][0]{
+    _id, basePrice,
+    sizes[]{ _key, label, adder },
+    complexityOptions[]{ _key, label, description, adder },
+    materialOptions[]{ _key, label, adder, requiresCustomQuote },
+    rushOptions[]{ _key, label, adder },
+    startingPrices[]{ _key, label, price },
+    exampleQuotes[]{ _key, label, note, total }
+  }`);
+
+  if (!raw) return null;
+
+  return {
+    _id: raw._id,
+    basePrice: raw.basePrice,
+    sizes: raw.sizes?.map((s) => ({ _key: s._key, label: s.label, adder: s.adder })),
+    complexityOptions: raw.complexityOptions?.map((c) => ({ _key: c._key, label: c.label, description: c.description, adder: c.adder })),
+    materialOptions: raw.materialOptions?.map((m) => ({ _key: m._key, label: m.label, adder: m.requiresCustomQuote ? null : (m.adder ?? 0) })),
+    rushOptions: raw.rushOptions?.map((r) => ({ _key: r._key, label: r.label, adder: r.adder })),
+    startingPrices: raw.startingPrices,
+    exampleQuotes: raw.exampleQuotes,
+  };
 }

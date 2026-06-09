@@ -84,6 +84,37 @@ export interface AboutPage {
   values?: string[];
 }
 
+export interface PricingOption {
+  _key?: string;
+  label: string;
+  adder: number | null;
+  description?: string;
+}
+
+export interface StartingPrice {
+  _key?: string;
+  label: string;
+  price: string;
+}
+
+export interface ExampleQuote {
+  _key?: string;
+  label: string;
+  note?: string;
+  total: number;
+}
+
+export interface PricingSettings {
+  _id: string;
+  basePrice?: number;
+  sizes?: PricingOption[];
+  complexityOptions?: PricingOption[];
+  materialOptions?: PricingOption[];
+  rushOptions?: PricingOption[];
+  startingPrices?: StartingPrice[];
+  exampleQuotes?: ExampleQuote[];
+}
+
 export interface SiteSettings {
   _id: string;
   businessName?: string;

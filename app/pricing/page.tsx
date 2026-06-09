@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { ChevronDown } from 'lucide-react';
 import QuoteEstimator from '@/components/pricing/QuoteEstimator';
-import { getFaqs } from '@/sanity/queries';
+import { getFaqs, getPricingSettings } from '@/sanity/queries';
 import { PortableText } from '@portabletext/react';
 import Link from 'next/link';
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Transparent pricing for custom hand-painted signs. All projects start at $40. Use the estimator to build your quote.',
 };
 
-const STARTING_PRICES = [
+const FALLBACK_STARTING_PRICES = [
   { label: 'Wedding Signs', price: '$40' },
   { label: 'Graduation Signs', price: '$40' },
   { label: 'Missionary Farewell', price: '$40' },
@@ -23,7 +23,14 @@ const STARTING_PRICES = [
 ];
 
 export default async function PricingPage() {
-  const faqData = await getFaqs().catch(() => []);
+  const [faqData, pricingSettings] = await Promise.all([
+    getFaqs().catch(() => []),
+    getPricingSettings().catch(() => null),
+  ]);
+
+  const startingPrices = pricingSettings?.startingPrices?.length
+    ? pricingSettings.startingPrices
+    : FALLBACK_STARTING_PRICES;
 
   return (
     <div className="min-h-screen bg-warm-white pt-32 pb-24">
@@ -34,7 +41,7 @@ export default async function PricingPage() {
           <p className="label-line text-xs tracking-[0.2em] uppercase text-gold mb-4">Transparent Pricing</p>
           <h1 className="font-display font-light text-5xl md:text-6xl text-ink mb-4">Pricing</h1>
           <p className="text-base text-ink-light max-w-xl mx-auto leading-relaxed">
-            Every project starts at $40. Use the builder below to get an instant estimate based on size, complexity, and material.
+            Every project starts at ${pricingSettings?.basePrice ?? 40}. Use the builder below to get an instant estimate based on size, complexity, and material.
           </p>
         </div>
 
@@ -42,7 +49,7 @@ export default async function PricingPage() {
         <div className="bg-cream rounded-2xl px-6 py-6 mb-16">
           <p className="text-xs tracking-[0.2em] uppercase text-muted text-center mb-5">Starting Prices</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
-            {STARTING_PRICES.map(({ label, price }) => (
+            {startingPrices.map(({ label, price }) => (
               <div key={label} className="text-center">
                 <p className="font-display text-2xl text-gold mb-1">{price}</p>
                 <p className="text-xs text-muted leading-snug">{label}</p>
@@ -57,7 +64,7 @@ export default async function PricingPage() {
             <p className="label-line text-xs tracking-[0.2em] uppercase text-gold mb-3">Price Calculator</p>
             <h2 className="font-display font-light text-4xl text-ink">Estimate Your Order</h2>
           </div>
-          <QuoteEstimator />
+          <QuoteEstimator pricingSettings={pricingSettings} />
         </div>
 
         {/* What to expect */}

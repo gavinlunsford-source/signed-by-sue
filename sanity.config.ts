@@ -3,7 +3,7 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemas';
 
-const singletonTypes = new Set(['homePage', 'aboutPage', 'siteSettings']);
+const singletonTypes = new Set(['homePage', 'aboutPage', 'siteSettings', 'pricingSettings']);
 
 export default defineConfig({
   name: 'signed-by-sue',
@@ -34,9 +34,9 @@ export default defineConfig({
             S.documentTypeListItem('portfolio').title('Portfolio').child(
               S.documentList().title('Portfolio Projects').filter('_type == "portfolio"').schemaType('portfolio')
             ),
-            S.documentTypeListItem('pricing').title('Pricing').child(
-              S.documentList().title('Pricing').filter('_type == "pricing"').schemaType('pricing')
-            ),
+            S.listItem()
+              .title('Pricing Settings')
+              .child(S.document().schemaType('pricingSettings').documentId('pricingSettings')),
             S.documentTypeListItem('testimonial').title('Testimonials').child(
               S.documentList().title('Testimonials').filter('_type == "testimonial"').schemaType('testimonial')
             ),
