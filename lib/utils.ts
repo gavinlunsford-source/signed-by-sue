@@ -16,27 +16,39 @@ export const EVENT_TYPES = [
   'Wedding',
   'Graduation',
   'Missionary Farewell',
-  'Baby Shower',
   'Bridal Shower',
-  'Birthday',
-  'Mirror or Glass Sign',
+  'Baby Shower',
+  'Birthday & Event',
+  'Mirror Sign',
   'Custom Artwork',
   'Other',
 ] as const;
 
 export const SIGN_SIZES = [
-  'Small (up to 12")',
-  'Medium (12"–24")',
-  'Large (24"–36")',
-  'Extra Large (36"+)',
-  'Not sure — I need a recommendation',
+  { label: 'Small (up to 24" × 36")', adder: 0 },
+  { label: 'Medium (up to 36" × 48")', adder: 10 },
+  { label: 'Large (up to 5\' × 3\')', adder: 20 },
 ] as const;
 
-export const MATERIALS = [
-  'Wood (standard)',
-  'Wood (premium/stained)',
-  'Mirror or Glass',
-  'Canvas',
-  'Acrylic',
-  'Not sure — I need a recommendation',
+export const COMPLEXITY_OPTIONS = [
+  { label: 'Basic Lettering', description: 'Clean text only', adder: 0 },
+  { label: 'Decorative Elements', description: 'Simple florals or accents', adder: 10 },
+  { label: 'Detailed Artwork', description: 'More involved illustrations', adder: 20 },
+  { label: 'Custom Illustration', description: 'Fully custom drawn design', adder: 30 },
 ] as const;
+
+export const MATERIAL_OPTIONS = [
+  { label: 'Paper', adder: 0 },
+  { label: 'Customer-Provided Material', adder: 0 },
+  { label: 'Mirror', adder: 20 },
+  { label: 'Glass', adder: 20 },
+  { label: 'Special Materials', adder: null },
+] as const;
+
+export const RUSH_OPTIONS = [
+  { label: 'No rush — standard timeline', adder: 0 },
+  { label: 'Needed within 7 days', adder: 15 },
+  { label: 'Needed within 3 days', adder: 25 },
+] as const;
+
+export const BASE_PRICE = 40;

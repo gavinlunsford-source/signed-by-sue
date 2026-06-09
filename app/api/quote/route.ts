@@ -11,9 +11,11 @@ export async function POST(req: NextRequest) {
       eventType,
       eventDate,
       size,
+      complexity,
       material,
+      rush,
       description,
-      inspirationUrls,
+      inspirationNotes,
     } = body;
 
     if (!name || !email || !eventType || !description) {
@@ -57,12 +59,14 @@ export async function POST(req: NextRequest) {
               <td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${eventType}</td>
             </tr>
             ${eventDate ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Event Date</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${eventDate}</td></tr>` : ''}
-            ${size ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Sign Size</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${size}</td></tr>` : ''}
+            ${size ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Size</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${size}</td></tr>` : ''}
+            ${complexity ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Complexity</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${complexity}</td></tr>` : ''}
             ${material ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Material</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${material}</td></tr>` : ''}
+            ${rush ? `<tr><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; color: #9A8E82; font-size: 13px;">Rush</td><td style="padding: 10px 0; border-bottom: 1px solid #F0EAE3; font-size: 15px;">${rush}</td></tr>` : ''}
           </table>
           <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: #9A8E82; margin-top: 24px;">Description</h3>
           <p style="font-size: 15px; line-height: 1.7; background: #F9F6F1; padding: 16px; border-radius: 8px; margin-top: 8px;">${description.replace(/\n/g, '<br>')}</p>
-          ${inspirationUrls ? `<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: #9A8E82; margin-top: 24px;">Inspiration / Notes</h3><p style="font-size: 15px; line-height: 1.7; background: #F9F6F1; padding: 16px; border-radius: 8px; margin-top: 8px;">${inspirationUrls.replace(/\n/g, '<br>')}</p>` : ''}
+          ${inspirationNotes ? `<h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; color: #9A8E82; margin-top: 24px;">Inspiration & Notes</h3><p style="font-size: 15px; line-height: 1.7; background: #F9F6F1; padding: 16px; border-radius: 8px; margin-top: 8px;">${inspirationNotes.replace(/\n/g, '<br>')}</p>` : ''}
           <p style="margin-top: 32px; font-size: 13px; color: #9A8E82; border-top: 1px solid #E8E0D8; padding-top: 16px;">Submitted via signedbysue.com · Reply to this email to respond to ${name}.</p>
         </div>
       `,

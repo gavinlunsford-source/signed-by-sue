@@ -2,150 +2,202 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { EVENT_TYPES, SIGN_SIZES, MATERIALS } from '@/lib/utils';
-
-const BASE_PRICES: Record<string, number> = {
-  Wedding: 40,
-  Graduation: 40,
-  'Missionary Farewell': 40,
-  'Baby Shower': 40,
-  'Bridal Shower': 40,
-  Birthday: 40,
-  'Mirror or Glass Sign': 60,
-  'Custom Artwork': 50,
-  Other: 40,
-};
-
-const SIZE_MULTIPLIERS: Record<string, number> = {
-  'Small (up to 12")': 1,
-  'Medium (12"–24")': 1.5,
-  'Large (24"–36")': 2.2,
-  'Extra Large (36"+)': 3.2,
-  "Not sure — I need a recommendation": 1.5,
-};
-
-const MATERIAL_ADDERS: Record<string, number> = {
-  'Wood (standard)': 0,
-  'Wood (premium/stained)': 15,
-  'Mirror or Glass': 20,
-  Canvas: 10,
-  Acrylic: 15,
-  "Not sure — I need a recommendation": 0,
-};
-
-const COMPLEXITY_ADDERS: Record<string, number> = {
-  simple: 0,
-  moderate: 20,
-  elaborate: 50,
-};
+import { BASE_PRICE, SIGN_SIZES, COMPLEXITY_OPTIONS, MATERIAL_OPTIONS, RUSH_OPTIONS } from '@/lib/utils';
 
 export default function QuoteEstimator() {
-  const [eventType, setEventType] = useState('');
-  const [size, setSize] = useState('');
-  const [material, setMaterial] = useState('');
-  const [complexity, setComplexity] = useState('');
-  const [rush, setRush] = useState(false);
+  const [size, setSize] = useState<number | null>(null);
+  const [complexity, setComplexity] = useState<number | null>(null);
+  const [material, setMaterial] = useState<number | null>(null); // null = special
+  const [rush, setRush] = useState<number>(0);
 
-  const estimate = (() => {
-    if (!eventType || !size || !material || !complexity) return null;
-    const base = BASE_PRICES[eventType] ?? 40;
-    const sizeMulti = SIZE_MULTIPLIERS[size] ?? 1;
-    const materialAdd = MATERIAL_ADDERS[material] ?? 0;
-    const complexityAdd = COMPLEXITY_ADDERS[complexity] ?? 0;
-    const rushAdd = rush ? 30 : 0;
-    const total = Math.round(base * sizeMulti + materialAdd + complexityAdd + rushAdd);
-    return { low: total, high: Math.round(total * 1.3) };
-  })();
+  const isSpecialMaterial = material === -1;
+  const total =
+    size !== null && complexity !== null && material !== null && !isSpecialMaterial
+      ? BASE_PRICE + size + complexity + material + rush
+      : null;
 
-  const selectClass = "w-full border border-border rounded-xl px-4 py-3 text-sm text-ink bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold/50 transition-colors";
+  const lineItems = [
+    { label: 'Base project', amount: BASE_PRICE, always: true },
+    { label: 'Size', amount: size, always: false },
+    { label: 'Design complexity', amount: complexity, always: false },
+    { label: 'Material', amount: material === -1 ? null : material, always: false },
+    { label: 'Rush fee', amount: rush > 0 ? rush : null, always: false },
+  ];
+
+  const btnBase = 'w-full text-left px-4 py-3 rounded-xl border text-sm transition-all duration-150';
+  const btnActive = 'border-gold bg-gold/10 text-ink font-medium';
+  const btnInactive = 'border-border bg-white text-ink-light hover:border-gold/40';
 
   return (
     <div className="bg-white border border-border rounded-3xl p-8 md:p-10 shadow-sm">
-      <h3 className="font-display text-3xl text-ink mb-2">Estimate Your Price</h3>
-      <p className="text-sm text-muted mb-8">
-        Get a ballpark figure before you reach out. Exact quotes are provided after a quick conversation.
-      </p>
+      <h3 className="font-display text-3xl text-ink mb-1">Build Your Quote</h3>
+      <p className="text-sm text-muted mb-8">Every project starts at ${BASE_PRICE}. Select your options below.</p>
 
-      <div className="grid sm:grid-cols-2 gap-5 mb-6">
-        {/* Event type */}
-        <div>
-          <label className="block text-xs tracking-wide uppercase text-muted mb-2">Event Type</label>
-          <select className={selectClass} value={eventType} onChange={(e) => setEventType(e.target.value)}>
-            <option value="">Select event type…</option>
-            {EVENT_TYPES.map((t) => <option key={t}>{t}</option>)}
-          </select>
-        </div>
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Left — options */}
+        <div className="flex flex-col gap-6">
 
-        {/* Size */}
-        <div>
-          <label className="block text-xs tracking-wide uppercase text-muted mb-2">Sign Size</label>
-          <select className={selectClass} value={size} onChange={(e) => setSize(e.target.value)}>
-            <option value="">Select size…</option>
-            {SIGN_SIZES.map((s) => <option key={s}>{s}</option>)}
-          </select>
-        </div>
+          {/* Size */}
+          <div>
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">1. Size</p>
+            <div className="flex flex-col gap-2">
+              {SIGN_SIZES.map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => setSize(s.adder)}
+                  className={`${btnBase} ${size === s.adder ? btnActive : btnInactive}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span>{s.label}</span>
+                    <span className={size === s.adder ? 'text-gold' : 'text-muted'}>
+                      {s.adder === 0 ? '+$0' : `+$${s.adder}`}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Material */}
-        <div>
-          <label className="block text-xs tracking-wide uppercase text-muted mb-2">Material</label>
-          <select className={selectClass} value={material} onChange={(e) => setMaterial(e.target.value)}>
-            <option value="">Select material…</option>
-            {MATERIALS.map((m) => <option key={m}>{m}</option>)}
-          </select>
-        </div>
+          {/* Complexity */}
+          <div>
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">2. Design Complexity</p>
+            <div className="flex flex-col gap-2">
+              {COMPLEXITY_OPTIONS.map((c) => (
+                <button
+                  key={c.label}
+                  onClick={() => setComplexity(c.adder)}
+                  className={`${btnBase} ${complexity === c.adder ? btnActive : btnInactive}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span>{c.label}</span>
+                      <span className="text-xs text-muted ml-2">— {c.description}</span>
+                    </div>
+                    <span className={complexity === c.adder ? 'text-gold' : 'text-muted'}>
+                      {c.adder === 0 ? '+$0' : `+$${c.adder}`}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Complexity */}
-        <div>
-          <label className="block text-xs tracking-wide uppercase text-muted mb-2">Design Complexity</label>
-          <select className={selectClass} value={complexity} onChange={(e) => setComplexity(e.target.value)}>
-            <option value="">Select complexity…</option>
-            <option value="simple">Simple — text only, clean lettering</option>
-            <option value="moderate">Moderate — some florals or artwork</option>
-            <option value="elaborate">Elaborate — detailed illustrations or multiple elements</option>
-          </select>
-        </div>
-      </div>
+          {/* Materials */}
+          <div>
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">3. Material</p>
+            <div className="flex flex-col gap-2">
+              {MATERIAL_OPTIONS.map((m) => {
+                const val = m.adder === null ? -1 : m.adder;
+                return (
+                  <button
+                    key={m.label}
+                    onClick={() => setMaterial(val)}
+                    className={`${btnBase} ${material === val ? btnActive : btnInactive}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>{m.label}</span>
+                      <span className={material === val ? 'text-gold' : 'text-muted'}>
+                        {m.adder === null ? '+ cost' : m.adder === 0 ? '+$0' : `+$${m.adder}`}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-      {/* Rush order */}
-      <label className="flex items-center gap-3 mb-8 cursor-pointer group">
-        <div className="relative">
-          <input
-            type="checkbox"
-            className="sr-only"
-            checked={rush}
-            onChange={(e) => setRush(e.target.checked)}
-          />
-          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${rush ? 'bg-gold border-gold' : 'border-border group-hover:border-gold/50'}`}>
-            {rush && <svg viewBox="0 0 10 8" className="w-3 h-3 fill-white"><path d="M1 4l3 3 5-6" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+          {/* Rush */}
+          <div>
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">4. Rush Fee</p>
+            <div className="flex flex-col gap-2">
+              {RUSH_OPTIONS.map((r) => (
+                <button
+                  key={r.label}
+                  onClick={() => setRush(r.adder)}
+                  className={`${btnBase} ${rush === r.adder ? btnActive : btnInactive}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span>{r.label}</span>
+                    <span className={rush === r.adder ? 'text-gold' : 'text-muted'}>
+                      {r.adder === 0 ? '' : `+$${r.adder}`}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-        <span className="text-sm text-ink-light">Rush order needed (under 1 week) <span className="text-muted">+$30</span></span>
-      </label>
 
-      {/* Result */}
-      <div className={`rounded-2xl p-6 transition-all duration-300 ${estimate ? 'bg-cream border border-blush' : 'bg-cream/50 border border-border'}`}>
-        {estimate ? (
-          <div>
-            <p className="text-xs text-muted tracking-wide uppercase mb-2">Estimated Range</p>
-            <p className="font-display text-4xl text-ink mb-1">
-              ${estimate.low} – ${estimate.high}
-            </p>
-            <p className="text-xs text-muted leading-relaxed mt-2">
-              This is an estimate only. Your final quote may vary based on specific design details, current availability, and any special requests.
-            </p>
+        {/* Right — running total */}
+        <div className="md:sticky md:top-8 self-start">
+          <div className="bg-cream border border-blush rounded-2xl p-6">
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-5">Your Estimate</p>
+
+            <div className="flex flex-col gap-3 mb-5">
+              {lineItems.map(({ label, amount, always }) => {
+                if (!always && amount === null) return null;
+                return (
+                  <div key={label} className="flex justify-between items-center text-sm">
+                    <span className="text-ink-light">{label}</span>
+                    <span className="text-ink font-medium">
+                      {amount === null ? '—' : `$${amount}`}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="border-t border-blush pt-4 mb-6">
+              <div className="flex justify-between items-baseline">
+                <span className="text-sm text-ink-light">Total</span>
+                <span className="font-display text-4xl text-ink">
+                  {isSpecialMaterial
+                    ? 'Custom'
+                    : total !== null
+                    ? `$${total}`
+                    : '—'}
+                </span>
+              </div>
+              {isSpecialMaterial && (
+                <p className="text-xs text-muted mt-1">Special material cost added at quote</p>
+              )}
+              {total === null && !isSpecialMaterial && (
+                <p className="text-xs text-muted mt-1">Select all options to see your total</p>
+              )}
+            </div>
+
             <Link
               href="/quote"
-              className="inline-flex items-center gap-2 mt-5 px-6 py-3 bg-ink text-white text-sm tracking-wide rounded-full hover:bg-ink-light transition-colors"
+              className="block text-center px-6 py-3 bg-ink text-white text-sm tracking-wide rounded-full hover:bg-ink-light transition-colors"
             >
-              Request an Exact Quote →
+              Request This Quote →
             </Link>
+            <p className="text-xs text-center text-muted mt-3">
+              The earlier you order, the better!
+            </p>
           </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="font-display text-2xl text-ink/30 mb-1">$—</p>
-            <p className="text-xs text-muted">Complete all fields above to see your estimate</p>
+
+          {/* Example quotes */}
+          <div className="mt-6">
+            <p className="text-xs tracking-[0.15em] uppercase text-muted mb-3">Example Quotes</p>
+            <div className="flex flex-col gap-2">
+              {[
+                { label: 'Graduation sign', total: 50, note: 'Small + decorative' },
+                { label: 'Large wedding sign', total: 70, note: 'Large + decorative' },
+                { label: 'Mirror welcome sign', total: 70, note: 'Small + mirror + decorative' },
+                { label: 'Detailed wedding sign', total: 80, note: 'Large + detailed artwork' },
+              ].map(({ label, total, note }) => (
+                <div key={label} className="flex justify-between items-center text-sm py-2 border-b border-border last:border-0">
+                  <div>
+                    <p className="text-ink">{label}</p>
+                    <p className="text-xs text-muted">{note}</p>
+                  </div>
+                  <span className="font-display text-xl text-gold">${total}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
