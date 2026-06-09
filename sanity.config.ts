@@ -27,6 +27,10 @@ export default defineConfig({
               .title('Site Settings')
               .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
             S.divider(),
+            S.documentTypeListItem('quoteRequest').title('Quote Requests').child(
+              S.documentList().title('Quote Requests').filter('_type == "quoteRequest"').schemaType('quoteRequest')
+            ),
+            S.divider(),
             S.documentTypeListItem('portfolio').title('Portfolio').child(
               S.documentList().title('Portfolio Projects').filter('_type == "portfolio"').schemaType('portfolio')
             ),

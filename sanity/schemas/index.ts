@@ -5,6 +5,7 @@ import faq from './faq';
 import homePage from './homePage';
 import aboutPage from './aboutPage';
 import siteSettings from './siteSettings';
+import quoteRequest from './quoteRequest';
 
 export const schemaTypes = [
   portfolio,
@@ -14,4 +15,5 @@ export const schemaTypes = [
   homePage,
   aboutPage,
   siteSettings,
+  quoteRequest,
 ];
