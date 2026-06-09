@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Upload, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, X, CheckCircle, AlertCircle, ArrowRight as ArrowRightIcon } from 'lucide-react';
+import Link from 'next/link';
 import { BASE_PRICE, SIGN_SIZES, COMPLEXITY_OPTIONS, MATERIAL_OPTIONS, RUSH_OPTIONS } from '@/lib/utils';
 
 interface Prefill { size?: string; complexity?: string; material?: string; rush?: string; }
@@ -134,6 +135,7 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
       });
       if (!res.ok) throw new Error();
       setStatus('success');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setStatus('error');
     }
@@ -154,7 +156,7 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="text-center py-16 px-6"
+        className="text-center py-16 px-6 pb-32"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -168,7 +170,19 @@ export default function QuoteWizard({ prefill }: QuoteWizardProps) {
         <p className="text-ink-light leading-relaxed max-w-sm mx-auto mb-2">
           Thank you, {name.split(' ')[0]}! I&apos;ll be in touch within 24–48 hours with your quote.
         </p>
-        <p className="text-xs text-muted mt-3">Check your inbox for a confirmation.</p>
+        <p className="text-xs text-muted mb-10">Check your inbox for a confirmation email.</p>
+
+        <div className="border-t border-border pt-10">
+          <p className="text-sm text-muted mb-2">While you wait —</p>
+          <p className="font-display text-2xl text-ink mb-6">See what&apos;s possible.</p>
+          <Link
+            href="/portfolio"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-ink text-white text-sm tracking-wide rounded-full hover:bg-ink-light transition-colors group"
+          >
+            Browse the Portfolio
+            <ArrowRightIcon size={14} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
       </motion.div>
     );
   }
