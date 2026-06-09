@@ -57,10 +57,6 @@ export async function POST(req: NextRequest) {
     // ── Send emails ───────────────────────────────────────────────────────────
     const apiKey = process.env.RESEND_API_KEY;
     const notificationEmail = process.env.NOTIFICATION_EMAIL ?? 'halliesue2009@gmail.com';
-    // Always CC the Resend inbox so orders are visible in the dashboard
-    const notificationRecipients = ['orders@loocho.resend.app', notificationEmail].filter(
-      (v, i, a) => a.indexOf(v) === i
-    );
 
     if (!apiKey) {
       console.log('📬 Quote request received (Resend not configured):', { name, email, eventType });
@@ -81,8 +77,8 @@ export async function POST(req: NextRequest) {
       `<tr><td style="padding:10px 0;border-bottom:1px solid #F0EAE3;width:160px;color:#9A8E82;font-size:13px;">${label}</td><td style="padding:10px 0;border-bottom:1px solid #F0EAE3;font-size:15px;">${value}</td></tr>`;
 
     await resend.emails.send({
-      from: 'Signed by Sue <orders@loocho.resend.app>',
-      to: notificationRecipients,
+      from: 'Signed by Sue <onboarding@resend.dev>',
+      to: notificationEmail,
       replyTo: email,
       subject: `New Quote Request — ${eventType} from ${name}`,
       attachments,
@@ -117,7 +113,7 @@ export async function POST(req: NextRequest) {
     });
 
     await resend.emails.send({
-      from: 'Signed by Sue <orders@loocho.resend.app>',
+      from: 'Signed by Sue <onboarding@resend.dev>',
       to: email,
       subject: `Got your request, ${name.split(' ')[0]}! 🌸`,
       html: `
