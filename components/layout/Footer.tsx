@@ -76,7 +76,7 @@ export default function Footer() {
             <h4 className="text-xs tracking-[0.2em] uppercase text-white/40 mb-4">Follow Along</h4>
             <div className="flex gap-3">
               <a
-                href="https://instagram.com/signedbysue"
+                href="https://www.instagram.com/halliesue_art"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/60 hover:text-white hover:border-white/40 transition-colors"
