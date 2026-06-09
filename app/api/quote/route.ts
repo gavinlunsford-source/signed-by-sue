@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     }));
 
     await resend.emails.send({
-      from: 'Signed by Sue <noreply@signedbysue.com>',
+      from: 'Signed by Sue <onboarding@resend.dev>',
       to: notificationEmail,
       replyTo: email,
       subject: `New Quote Request — ${eventType} from ${name}`,
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     });
 
     await resend.emails.send({
-      from: 'Hallie at Signed by Sue <hello@signedbysue.com>',
+      from: 'Signed by Sue <onboarding@resend.dev>',
       to: email,
       subject: `Got your request, ${name.split(' ')[0]}! 🌸`,
       html: `
