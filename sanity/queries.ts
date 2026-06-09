@@ -34,10 +34,10 @@ export async function getHomePage(): Promise<HomePage | null> {
 
 export async function getPortfolioProjects(category?: string): Promise<PortfolioProject[]> {
   const filter = category
-    ? `*[_type == "portfolio" && category == $category]`
+    ? `*[_type == "portfolio" && $category in categories]`
     : `*[_type == "portfolio"]`;
   const result = await sanityFetch<PortfolioProject[]>(
-    `${filter} | order(date desc) { _id, title, slug, category, images, description, clientName, date, featured }`,
+    `${filter} | order(date desc) { _id, title, slug, categories, images, description, clientName, date, featured }`,
     category ? { category } : {}
   );
   return result ?? [];
@@ -45,7 +45,7 @@ export async function getPortfolioProjects(category?: string): Promise<Portfolio
 
 export async function getFeaturedProjects(): Promise<PortfolioProject[]> {
   const result = await sanityFetch<PortfolioProject[]>(
-    `*[_type == "portfolio" && featured == true] | order(date desc)[0...6] { _id, title, slug, category, images, description }`
+    `*[_type == "portfolio" && featured == true] | order(date desc)[0...6] { _id, title, slug, categories, images, description }`
   );
   return result ?? [];
 }

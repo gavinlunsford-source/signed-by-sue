@@ -19,9 +19,10 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'string',
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [{ type: 'string' }],
       options: {
         list: [
           { title: 'Weddings', value: 'weddings' },
@@ -32,9 +33,9 @@ export default defineType({
           { title: 'Mirrors & Glass', value: 'mirrors-glass' },
           { title: 'Custom Artwork', value: 'custom-artwork' },
         ],
-        layout: 'radio',
+        layout: 'grid',
       },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().min(1),
     }),
     defineField({
       name: 'images',
@@ -84,10 +85,10 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      category: 'category',
+      categories: 'categories',
       media: 'images.0',
     },
-    prepare({ title, category, media }) {
+    prepare({ title, categories, media }) {
       const labels: Record<string, string> = {
         weddings: 'Wedding',
         graduations: 'Graduation',
@@ -97,11 +98,8 @@ export default defineType({
         'mirrors-glass': 'Mirror & Glass',
         'custom-artwork': 'Custom Artwork',
       };
-      return {
-        title,
-        subtitle: labels[category] ?? category,
-        media,
-      };
+      const subtitle = (categories as string[] ?? []).map((c) => labels[c] ?? c).join(', ');
+      return { title, subtitle, media };
     },
   },
   orderings: [

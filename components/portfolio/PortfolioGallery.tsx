@@ -41,7 +41,7 @@ export default function PortfolioGallery({ projects, initialCategory = 'all' }: 
   const filtered =
     activeCategory === 'all'
       ? projects
-      : projects.filter((p) => p.category === activeCategory);
+      : projects.filter((p) => p.categories?.includes(activeCategory as PortfolioCategory));
 
   const openLightbox = (project: PortfolioProject, imgIndex = 0) => {
     setLightboxProject(project);
@@ -115,10 +115,12 @@ export default function PortfolioGallery({ projects, initialCategory = 'all' }: 
 
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute top-4 left-4">
-                <span className="px-3 py-1 bg-white/80 backdrop-blur-sm text-ink text-xs tracking-wide rounded-full">
-                  {CATEGORY_LABELS[project.category] ?? project.category}
-                </span>
+              <div className="absolute top-4 left-4 flex flex-wrap gap-1">
+                {(project.categories ?? []).slice(0, 2).map((cat) => (
+                  <span key={cat} className="px-3 py-1 bg-white/80 backdrop-blur-sm text-ink text-xs tracking-wide rounded-full">
+                    {CATEGORY_LABELS[cat] ?? cat}
+                  </span>
+                ))}
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                 <p className="font-display text-xl text-white">{project.title}</p>

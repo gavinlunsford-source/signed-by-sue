@@ -77,11 +77,13 @@ export default function FeaturedWork({ projects = [] }: FeaturedWorkProps) {
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                {/* Category pill */}
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-white/80 backdrop-blur-sm text-ink text-xs tracking-wide rounded-full">
-                    {CATEGORY_LABELS[project.category] ?? project.category}
-                  </span>
+                {/* Category pills */}
+                <div className="absolute top-4 left-4 flex flex-wrap gap-1">
+                  {(project.categories ?? []).slice(0, 2).map((cat) => (
+                    <span key={cat} className="px-3 py-1 bg-white/80 backdrop-blur-sm text-ink text-xs tracking-wide rounded-full">
+                      {CATEGORY_LABELS[cat] ?? cat}
+                    </span>
+                  ))}
                 </div>
 
                 {/* Title on hover */}

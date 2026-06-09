@@ -3,7 +3,7 @@ export interface PortfolioProject {
   _type: 'portfolio';
   title: string;
   slug: { current: string };
-  category: PortfolioCategory;
+  categories: PortfolioCategory[];
   images: SanityImage[];
   description?: string;
   clientName?: string;
