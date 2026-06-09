@@ -112,21 +112,6 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    await resend.emails.send({
-      from: 'Signed by Sue <onboarding@resend.dev>',
-      to: email,
-      subject: `Got your request, ${name.split(' ')[0]}! 🌸`,
-      html: `
-        <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#2A2018;">
-          <h1 style="font-size:32px;font-weight:300;">Thank you, ${name.split(' ')[0]}!</h1>
-          <p style="font-size:16px;line-height:1.8;color:#5C5044;">I received your quote request and I&apos;m so excited to hear about your ${eventType.toLowerCase()}.</p>
-          <p style="font-size:16px;line-height:1.8;color:#5C5044;">I&apos;ll be in touch within <strong>24–48 hours</strong> with pricing and availability. Feel free to reply to this email with any questions or additional photos.</p>
-          <p style="font-size:16px;line-height:1.8;color:#5C5044;">Thank you for trusting me with your celebration. 🌸</p>
-          <p style="margin-top:32px;font-size:16px;color:#2A2018;">Warmly,<br><em style="font-size:20px;">Hallie</em><br><span style="font-size:12px;color:#9A8E82;letter-spacing:0.1em;">SIGNED BY SUE</span></p>
-        </div>
-      `,
-    });
-
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Quote form error:', error);

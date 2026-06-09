@@ -98,6 +98,7 @@ export default function QuoteWizard({ prefill, pricingSettings }: QuoteWizardPro
     if (s === 4) {
       if (!name.trim()) e.name = 'What\'s your name?';
       if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Need a valid email to send your quote';
+      if (!phone.trim()) e.phone = 'A phone number helps Hallie reach you quickly';
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -174,10 +175,9 @@ export default function QuoteWizard({ prefill, pricingSettings }: QuoteWizardPro
           <CheckCircle size={28} className="text-sage" />
         </motion.div>
         <h2 className="font-display text-4xl text-ink mb-3">You&apos;re all set!</h2>
-        <p className="text-ink-light leading-relaxed max-w-sm mx-auto mb-2">
+        <p className="text-ink-light leading-relaxed max-w-sm mx-auto mb-10">
           Thank you, {name.split(' ')[0]}! I&apos;ll be in touch within 24–48 hours with your quote.
         </p>
-        <p className="text-xs text-muted mb-10">Check your inbox for a confirmation email.</p>
 
         <div className="border-t border-border pt-10">
           <p className="text-sm text-muted mb-2">While you wait —</p>
@@ -432,9 +432,10 @@ export default function QuoteWizard({ prefill, pricingSettings }: QuoteWizardPro
                     {errors.email && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-rose mt-1.5 flex items-center gap-1"><AlertCircle size={12} />{errors.email}</motion.p>}
                   </div>
                   <div>
-                    <label className="block text-xs tracking-wide uppercase text-muted mb-2">Phone <span className="text-muted normal-case">(optional)</span></label>
-                    <input value={phone} onChange={(e) => setPhone(e.target.value)}
+                    <label className="block text-xs tracking-wide uppercase text-muted mb-2">Phone <span className="text-rose">*</span></label>
+                    <input value={phone} onChange={(e) => { setPhone(e.target.value); setErrors((prev) => ({ ...prev, phone: '' })); }}
                       type="tel" className={inputClass} placeholder="(555) 000-0000" autoComplete="tel" />
+                    {errors.phone && <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-rose mt-1.5 flex items-center gap-1"><AlertCircle size={12} />{errors.phone}</motion.p>}
                   </div>
                 </div>
 
