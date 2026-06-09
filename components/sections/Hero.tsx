@@ -91,10 +91,6 @@ export default function Hero({
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-        <div className="w-px h-12 bg-gradient-to-b from-ink to-transparent" />
-        <p className="text-xs tracking-[0.2em] uppercase text-ink rotate-90 origin-center mt-2">Scroll</p>
-      </div>
     </section>
   );
 }
