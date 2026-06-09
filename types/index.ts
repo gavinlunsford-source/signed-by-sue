@@ -58,6 +58,7 @@ export interface HomePage {
   heroHeadline?: string;
   heroSubheadline?: string;
   heroCTA?: string;
+  heroImage?: SanityImage;
   howItWorksSteps?: WorkStep[];
   featuredPortfolioItems?: PortfolioProject[];
   sectionServicesHeadline?: string;

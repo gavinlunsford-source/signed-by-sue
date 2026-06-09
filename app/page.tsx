@@ -25,6 +25,7 @@ export default async function HomePage() {
         headline={homeData?.heroHeadline}
         subheadline={homeData?.heroSubheadline}
         cta={homeData?.heroCTA}
+        heroImage={homeData?.heroImage}
       />
       <FeaturedWork projects={homeData?.featuredPortfolioItems ?? featuredData} />
       <HowItWorks steps={homeData?.howItWorksSteps} />
