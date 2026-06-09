@@ -66,11 +66,11 @@ export default function Footer() {
             <h4 className="text-xs tracking-[0.2em] uppercase text-white/40 mb-5">Get in Touch</h4>
             <div className="flex flex-col gap-3 mb-6">
               <a
-                href="mailto:hello@signedbysue.com"
+                href="mailto:halliesue2009@gmail.com"
                 className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
               >
                 <Mail size={14} />
-                hello@signedbysue.com
+                halliesue2009@gmail.com
               </a>
             </div>
             <h4 className="text-xs tracking-[0.2em] uppercase text-white/40 mb-4">Follow Along</h4>
