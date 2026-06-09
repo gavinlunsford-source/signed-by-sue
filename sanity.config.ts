@@ -27,10 +27,18 @@ export default defineConfig({
               .title('Site Settings')
               .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
             S.divider(),
-            S.documentTypeListItem('portfolio').title('Portfolio'),
-            S.documentTypeListItem('pricing').title('Pricing'),
-            S.documentTypeListItem('testimonial').title('Testimonials'),
-            S.documentTypeListItem('faq').title('FAQs'),
+            S.documentTypeListItem('portfolio').title('Portfolio').child(
+              S.documentList().title('Portfolio Projects').filter('_type == "portfolio"').schemaType('portfolio')
+            ),
+            S.documentTypeListItem('pricing').title('Pricing').child(
+              S.documentList().title('Pricing').filter('_type == "pricing"').schemaType('pricing')
+            ),
+            S.documentTypeListItem('testimonial').title('Testimonials').child(
+              S.documentList().title('Testimonials').filter('_type == "testimonial"').schemaType('testimonial')
+            ),
+            S.documentTypeListItem('faq').title('FAQs').child(
+              S.documentList().title('FAQs').filter('_type == "faq"').schemaType('faq')
+            ),
           ]),
     }),
     visionTool(),
